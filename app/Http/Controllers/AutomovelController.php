@@ -95,7 +95,7 @@ class AutomovelController extends Controller
      * @param  \App\Models\Automovel  $automovel
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Automovel $auto)
     {
         //
         $request->validate([
@@ -106,7 +106,13 @@ class AutomovelController extends Controller
             'user_id' => 'required',
         ]);
 
-        Automovel::find($id)->update($request->all());
+        $auto->modelo = $request->modelo;
+        $auto->ano = $request->ano;
+        $auto->cor = $request->cor;
+        $auto->placa = $request->placa;
+        $auto->save();
+        sleep(1);
+
         return redirect()->refresh();
     }
 

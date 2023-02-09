@@ -62,16 +62,16 @@ const Table = styled.table`
 `;
 
 const AutoListItem = ({ auto, errors }) => {
-    const { data, setData, put } = useForm({ ...auto });
+    const { id, user_id, modelo, ano, placa, cor } = auto;
 
-    console.log('data', data);
+    const { data, setData, put } = useForm({ id, user_id, modelo, ano, placa, cor })
 
-    const [showModal, setShowModal] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
 
     const handleSubmitEdit = (event) => {
         event.preventDefault();
-        put(route("autos.update"));
+        put(route('autos.update', id));
         setShowEditModal(false);
     }
 
@@ -86,11 +86,12 @@ const AutoListItem = ({ auto, errors }) => {
                     <SecondaryButton type='button' onClick={() => setShowEditModal(true)}>editar</SecondaryButton>
                 </td>
                 <td style={{ borderBottom: '1px solid silver' }}>
-                    <DangerButton type='button' onClick={() => setShowModal(true)}>remover</DangerButton>
+                    <DangerButton type='button' onClick={() => setShowDeleteModal(true)}>remover</DangerButton>
                 </td>
             </tr>
 
-            <Modal show={showModal} onClose={() => setShowModal(false)}>
+            {/* Modal de exclusão de itens */}
+            <Modal show={showDeleteModal} onClose={() => setShowDeleteModal(false)}>
                 <ModalHeader>
                     <h1 className='text-xl gray-900'>Tem certeza?</h1>
                 </ModalHeader>
@@ -102,7 +103,7 @@ const AutoListItem = ({ auto, errors }) => {
                     </strong>
                 </ModalBody>
                 <ModalFooter>
-                    <SecondaryButton type='button' onClick={() => setShowModal(false)}>Cancelar</SecondaryButton>
+                    <SecondaryButton type='button' onClick={() => setShowDeleteModal(false)}>Cancelar</SecondaryButton>
                     <Link as='button' href={`autos/${auto.id}`} method="delete">
                         <DangerButton type='button'>
                             Continuar
@@ -111,6 +112,7 @@ const AutoListItem = ({ auto, errors }) => {
                 </ModalFooter>
             </Modal>
 
+            {/* Modal de edição de itens */}
             <Modal show={showEditModal} onClose={() => setShowEditModal(false)}>
                 <ModalHeader>
                     <h1 className='text-xl gray-900'>Editar auto</h1>
@@ -149,9 +151,7 @@ const AutoListItem = ({ auto, errors }) => {
                     </ModalBody>
                     <ModalFooter>
                         <SecondaryButton type='button' onClick={() => setShowEditModal(false)}>Cancelar</SecondaryButton>
-                        <Link method='patch' href={`autos/${auto.id}`}>
-                            <PrimaryButton type='submit'>Salvar</PrimaryButton>
-                        </Link>
+                        <PrimaryButton type='submit'>Salvar</PrimaryButton>
                     </ModalFooter>
                 </form>
             </Modal>
@@ -202,17 +202,18 @@ function Dashboard({ autos, auth, errors }) {
                         {
                             !!autos.length
                                 ? autos.map(auto => <AutoListItem key={auto.id} auto={auto} errors={errors} />)
-                                : <strong>Nenhum automóvel disponível.</strong>
+                                : <strong style={{ display: 'block', margin: '1rem' }}>Nenhum automóvel disponível.</strong>
                         }
                     </tbody>
                 </Table>
             </div>
 
+            {/* Modal de criação de itens */}
             <Modal show={showCreateModal} onClose={() => setShowCreateModal(false)}>
-                <div className='p-4'>
-                    <h1 className='text-xl text-strong my-4'>Add novo automóvel</h1>
+                <form onSubmit={handleSubmit}>
+                    <div className='p-4'>
+                        <h1 className='text-xl text-strong my-4'>Add novo automóvel</h1>
 
-                    <form onSubmit={handleSubmit}>
                         <FormContent className="flex flex-wrap justify-evenly my-6">
                             <div className='pb-4'>
                                 <InputLabel>Modelo:</InputLabel>
@@ -238,9 +239,12 @@ function Dashboard({ autos, auth, errors }) {
                                 {errors.ano && <span style={{ color: '#CC3333' }}>{errors.ano}</span>}
                             </div>
                         </FormContent>
+                    </div>
+                    <ModalFooter>
+                        <SecondaryButton style={{}} type='button' onClick={() => setShowCreateModal(false)}>Cancelar</SecondaryButton>
                         <PrimaryButton type='submit'>Cadastrar</PrimaryButton>
-                    </form>
-                </div>
+                    </ModalFooter>
+                </form>
             </Modal>
         </AuthMainLayout >
     );
